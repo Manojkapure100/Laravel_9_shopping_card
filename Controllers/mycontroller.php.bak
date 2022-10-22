@@ -1,0 +1,102 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\View\Components\header;
+use resources\views\manage\managedata;
+use Illuminate\Support\Facades\DB;
+
+class mycontroller extends Controller
+{
+    //
+    
+    function loginCheck(Request $r){
+        $count =DB::table("cridentials")->where("username",$r->unm)->where("password",$r->psw)->count();
+        if($count==1){
+            $user=DB::table("cridentials")->where("username",$r->unm)->where("password",$r->psw)->select("type")->get();
+            $type=$user[0]->type;
+            if($type=='a'){
+                return view("adminHomepage");
+            }else{
+                return view("customerHomepage");
+            }
+        }else{
+            echo "<script> alert(\" Invalid Username and Password \") </script>";
+            return view("login");
+        }
+    }
+
+    function adminHomepage(){
+        return view("adminHomepage");
+    }
+	function customerHomepage(){
+		// $d = db::table("product")->get();
+        return view("customerHomepage");
+    }
+	
+
+	function cart(){
+        return view("cart");
+    }
+
+    function adminCategory(){
+        return view("adminCategory");
+    }
+    function addCategory(Request $r){
+        DB::insert("insert into category(cid,cnm) values(?,?)",[null,$r->nm]);
+        return redirect("adminCategory");
+    }
+
+    function adminSubcategory(){
+        $d=DB::table("category")->get();
+        return view("adminSubcategory",["mydata"=>$d]);
+    }
+    function addSubcategory(Request $r){
+        DB::insert("insert into subcategory(scid,scnm,cid) values(?,?,?)",[null,$r->nm,$r->c]);
+        return redirect("adminSubcategory");
+    }
+
+    function adminProduct(){
+        $d=DB::table("category")->get();
+        return view("adminProduct",["mydata"=>$d]);
+    }
+    function addProduct(Request $r){
+        DB::insert("insert into product(pid,pnm,cid,scid,price) values(?,?,?,?,?)",[null,$r->nm,$r->c,$r->sc,$r->price]);
+        return redirect("adminProduct");
+    }
+
+    // function callheader(){
+        // return view('header');
+    // }
+    
+    // function callview1(){
+        // return view("view1");
+    // }
+
+    function getdata(Request $r){
+        // return view("\manage\managedata");
+        echo $r->unm ."-->". $r->psw;
+    }
+
+    function needsc(Request $r){
+        $c = $r->val;
+        $sc = db::table("subcategory")->where("cid",$c)->get(["scid","scnm"]);
+        echo "<select name='sc' onchange='f1()'>";
+        foreach ($sc as $key => $value) {
+            echo "<option value='$value->scid'> $value->scnm </option>";
+        }
+        echo "</select>";
+        //return "hello brother $sc";
+    }
+	function custhomeajax(Request $r){
+		$c = $r->val;
+        $sc = db::table("subcategory")->where("cid",$c)->get(["scid","scnm"]);
+        echo "<select name='sc' onchange='f1()'>";
+        foreach ($sc as $key => $value) {
+            echo "<option value='$value->scid'> $value->scnm </option>";
+        }
+        echo "</select>";
+        //return "hello brother $sc";
+	}
+}

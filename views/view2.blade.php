@@ -1,0 +1,1 @@
+<x-header something="in View 2"/>
